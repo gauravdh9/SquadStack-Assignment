@@ -11,22 +11,15 @@ class ParkingLot:
 
     def create_parking_lot(self, number):
         self.lot = [0 for i in range(number)]
-        return "Parking Lot Created"
+        return f'Created parking of {number} slots'
 
     def park_car(self, registration_number, age):
         for i, item in enumerate(self.lot):
             if item == 0:
                 self.lot[i] = registration_number
                 self.details[registration_number] = {"age": age}
-                return f"Park car with vehicle registration number “{registration_number}”,\
-                and the car is driven by the driver of age {age}"
+                return f'Car with vehicle registration number "{registration_number}" has been parked at slot number {i+1}'
         return "No Slots Available"
-
-    # def custom(self, item, age):
-    #     print(item)
-    #     if item[1] in self.details and self.details[item[1]]["age"] == age:
-    #         return item[0]+1
-    #     return False
 
     def slot_numbers(self, age):
         slots = []
@@ -36,62 +29,54 @@ class ParkingLot:
         return slots
 
     def slot_number(self, registration_number):
-        for i, item in enumerate(self.lot):
-            print(item)
+        parking_lot = self.lot
+        for i, item in enumerate(parking_lot):
             if item == registration_number:
                 return i+1
         return f'No vehicle Was Found in Parking Lot with Registration Number {registration_number}'
 
-    def vacate(self, lot_number=2):
+    def vacate(self, lot_number):
+        if lot_number < 1:
+            return "Incorrect Position To Vacate"
+        lot_number -= 1
         if self.lot[lot_number]:
+            registration_number = self.lot[lot_number]
+            age = self.details[self.lot[lot_number]]["age"]
             del self.details[self.lot[lot_number]]
             self.lot[lot_number] = 0
-            return f'Car which was parked at slot number {lot_number} has left the space'
+            return f'Slot number {lot_number} vacated, the car with vehicle registration number "{registration_number}" left the space, the driver of the car was of age {age}'
         return "Slot already vacant"
 
-    def accept_commands(self):
-        while True:
-            print("List of Commands")
-            print("1. Create_parking_lot `lot_number`(capacity)")
-            print("2. Park `registration number` drive age `age`(age)")
-            print("3. Slot_numbers_for_driver_of_age `age`(age)")
-            print("1. Create_parking_lot `lot_number`(capacity)")
-            print("1. Create_parking_lot `lot_number`(capacity)")
+    def vehicle_registration_age(self, age):
+        registration_numbers = []
+        registration_details = self.details
+        for item in registration_details:
+            if registration_details[item]["age"] == age:
+                registration_numbers.append(item)
+        return registration_numbers
+
+    def run_file(self):
+        with open("input.txt", "r") as file:
+            lines = file.readlines()
+            lines = [line.rstrip() for line in lines]
+            for line in lines:
+                line_items = line.split(" ")
+                if line_items[0] == "Create_parking_lot":
+                    self.create_parking_lot(int(line_items[1]))
+                else:
+                    if not self.lot:
+                        return "No Parking Lot has been Created Please Create One"
+                    if line_items[0] == "Park" and line_items[2] == "driver_age":
+                        print(self.park_car(line_items[1], int(line_items[3])))
+                    elif line_items[0] == "Slot_numbers_for_driver_of_age":
+                        print(*self.slot_numbers(int(line_items[1])), sep=",")
+                    elif line_items[0] == "Slot_number_for_car_with_number":
+                        print(self.slot_number(line_items[1]))
+                    elif line_items[0] == "Leave":
+                        print(self.vacate(int(line_items[1])))
+                    elif line_items[0] == "Vehicle_registration_number_for_driver_of_age":
+                        print(self.vehicle_registration_age(int(line_items[1])))
 
 
 p1 = ParkingLot()
-
-
-print(p1.create_parking_lot(6))
-print(p1.park_car("PB-01-TG-2341", 40))
-print(p1.print_lot())
-print(p1.print_details())
-print(p1.park_car("KA-90-YU-2342", 29))
-print(p1.print_lot())
-print(p1.print_details())
-print(p1.park_car("GA-50-IO-5687", 35))
-print(p1.print_lot())
-print(p1.print_details())
-print(p1.park_car("ER-23-KJ-9898", 45))
-print(p1.print_lot())
-print(p1.print_details())
-print(p1.park_car("LI-90-NI-4562", 23))
-print(p1.print_lot())
-print(p1.print_details())
-# print(p1.park_car("XC-23-NJ-1010", 27))
-# print(p1.print_lot())
-# print(p1.print_details())
-# print(p1.park_car("ZV-77-DF-8723", 56))
-# print(p1.print_lot())
-# print(p1.print_details())
-
-
-print(p1.slot_numbers(age=23), "number")
-
-print(p1.slot_number("LI-90-NI-4562"))
-print(p1.vacate(2))
-print(p1.print_lot())
-print(p1.print_details())
-print(p1.vacate(2))
-print(p1.print_lot())
-print(p1.print_details())
+p1.run_file()
